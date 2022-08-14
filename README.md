@@ -13,8 +13,7 @@ image, containers launched from this image will serve as a
 [managed nodes](https://docs.ansible.com/ansible/latest/network/getting_started/basic_concepts.html#managed-nodes)
 
 ## Example usage:
-
-* Build a _control_node_ image:
+To run a sample playbook from this repository on a instance of a _managed_node:
 
 * Build a _managed_node_ image:
     ```shell
@@ -36,4 +35,24 @@ docs:
       -p 2222:2222 \
       managed-node
   ```
+
+* Build a _control_node_ image:
+    ```shell
+    docker build -t control-node -f ./control=node.dockerfile .
+    ```
+
+* Run the _managed_node_ with mounted _sample_ folder:
+    ```shell
+    docker run \
+        --rm \
+        --interactive \
+        --env ANSIBLE_HOST_KEY_CHECKING=False \ 
+        --volume ./sample:/ansible/sample \
+        managed-node \
+        bash
+    ```
+* In a prompted shell, type following command:
+    ```shell
+    ansible-playbook --inventory /ansible/inventory.yaml /ansible/playbook.yaml
+    ```
 
