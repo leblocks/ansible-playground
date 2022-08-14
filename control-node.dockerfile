@@ -1,8 +1,10 @@
-FROM alpine:latest
+FROM alpine:latest as basic_configuration
 
 ARG PYTHON_VERSION=3.9.9
 ARG ANSIBLE_VERSION=5.9.0
 
+# install dev-dependencies required for building python
+# and ssh tools for ansible
 RUN apk add \
     wget \
     gcc \
@@ -10,7 +12,9 @@ RUN apk add \
     zlib-dev \
     libffi-dev \
     openssl-dev \
-    musl-dev
+    musl-dev \
+    openssh \
+    sshpass
 
 # build python and install ansible
 RUN cd /opt \
@@ -18,14 +22,15 @@ RUN cd /opt \
     && tar xzf Python-${PYTHON_VERSION}.tgz \
     && cd Python-${PYTHON_VERSION} \
     && ./configure --prefix=/usr --enable-optimizations --with-ensurepip=install \
-    && make altinstall \
-    && ln -s /usr/bin/python${PYTHON_VERSION:0:3} /usr/bin/python \
-    && ln -s /usr/bin/pip${PYTHON_VERSION:0:3} /usr/bin/pip \
-    && pip install ansible==${ANSIBLE_VERSION}
+    && make install \
+    && rm /opt/Python-${PYTHON_VERSION}.tgz /opt/Python-${PYTHON_VERSION} -rf \
+    && pip3 install ansible==${ANSIBLE_VERSION}
 
 # make shell experience a little better
 RUN apk add bash git \
     && bash -c "$(wget https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh -O -)"
+
+FROM basic_configuration as final
 
 CMD tail -f /dev/null
 
