@@ -13,6 +13,16 @@ image, containers launched from this image will serve as a
 [managed nodes](https://docs.ansible.com/ansible/latest/network/getting_started/basic_concepts.html#managed-nodes)
 
 ## Example usage:
+
+### Example with docker compose
+* Start containers via docker compose:
+    ```shell
+    docker compose up -d
+    ```
+
+* _exec_ into a _control-node_ container via _docker exec_
+
+### Example with pure docker
 To run a sample playbook from this repository on a instance of a _managed_node:
 
 * Build a _managed_node_ image:
@@ -25,7 +35,7 @@ docs:
     ```shell
     docker run -d \
       --rm \
-      --name=control-node-1 \
+      --name=managed-node-1 \
       -e PUID=1000 \
       -e PGID=1000 \
       -e TZ=Europe/London \
@@ -38,17 +48,17 @@ docs:
 
 * Build a _control_node_ image:
     ```shell
-    docker build -t control-node -f ./control=node.dockerfile .
+    docker build -t control-node -f ./control-node.dockerfile .
     ```
 
-* Run the _managed_node_ with mounted _sample_ folder:
+* Run the _control_node_ with mounted _sample_ folder:
     ```shell
     docker run \
         --rm \
         --interactive \
         --env ANSIBLE_HOST_KEY_CHECKING=False \ 
         --volume ./sample:/ansible/sample \
-        managed-node \
+        control-node \
         bash
     ```
 * In a prompted shell, type following command:

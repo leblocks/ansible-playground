@@ -16,15 +16,18 @@ RUN apk add \
     openssh \
     sshpass
 
-# build python and install ansible
+# download and extract python sources
 RUN cd /opt \
     && wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz \
-    && tar xzf Python-${PYTHON_VERSION}.tgz \
-    && cd Python-${PYTHON_VERSION} \
+    && tar xzf Python-${PYTHON_VERSION}.tgz
+
+# build python and remove left-over sources
+RUN cd /opt/Python-${PYTHON_VERSION} \
     && ./configure --prefix=/usr --enable-optimizations --with-ensurepip=install \
     && make install \
-    && rm /opt/Python-${PYTHON_VERSION}.tgz /opt/Python-${PYTHON_VERSION} -rf \
-    && pip3 install ansible==${ANSIBLE_VERSION}
+    && rm /opt/Python-${PYTHON_VERSION}.tgz /opt/Python-${PYTHON_VERSION} -rf
+
+RUN pip3 install ansible==${ANSIBLE_VERSION}
 
 # make shell experience a little better
 RUN apk add bash git \
